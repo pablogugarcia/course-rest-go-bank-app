@@ -2,7 +2,6 @@ package app
 
 import (
 	"encoding/json"
-	"encoding/xml"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -19,22 +18,13 @@ type CustomersHandlers struct {
 	service service.CustomerService
 }
 
-func (ch *CustomersHandlers) getAllCoustumers(rw http.ResponseWriter, r *http.Request) {
-	// customers := []Customer{
-	// 	{Name: "Alish", City: "Cba", Zipcode: "5000"},
-	// 	{Name: "Castor", City: "Cba", Zipcode: "5000"},
-	// }
-	customers, _ := ch.service.GetAllCustomers()
-	if r.Header.Get("Content-type") == "application/xml" {
-		rw.Header().Add("Content-type", "application/xml")
-		xml.NewEncoder(rw).Encode(customers)
-
+func (ch *CustomersHandlers) getAllCoustumers(w http.ResponseWriter, r *http.Request) {
+	customers, err := ch.service.GetAllCustomers()
+	if err != nil {
+		writeResponse(w, err.Code, err.AsMessage())
 	} else {
-		rw.Header().Add("Content-type", "application/json")
-		json.NewEncoder(rw).Encode(customers)
-
+		writeResponse(w, http.StatusOK, customers)
 	}
-
 }
 
 func (ch *CustomersHandlers) getCustomer(w http.ResponseWriter, r *http.Request) {
