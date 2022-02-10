@@ -2,9 +2,11 @@ package app
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/pablogugarcia/banking/errs"
 	"github.com/pablogugarcia/banking/service"
 )
 
@@ -19,7 +21,25 @@ type CustomersHandlers struct {
 }
 
 func (ch *CustomersHandlers) getAllCoustumers(w http.ResponseWriter, r *http.Request) {
-	customers, err := ch.service.GetAllCustomers()
+	status := r.URL.Query().Get("status")
+
+	if status != "" {
+		if !isValidStatus(status) {
+			err := errs.NewNotFoundError("bad request")
+			writeResponse(w, err.Code, err.AsMessage())
+			return
+		} else {
+			var err error
+			status, err = parseStatus(status)
+
+			if err != nil {
+				err := errs.NewUnexpectedError("internal server error")
+				writeResponse(w, err.Code, err.AsMessage())
+			}
+		}
+	}
+
+	customers, err := ch.service.GetAllCustomers(status)
 	if err != nil {
 		writeResponse(w, err.Code, err.AsMessage())
 	} else {
@@ -43,5 +63,19 @@ func writeResponse(w http.ResponseWriter, code int, data interface{}) {
 	w.WriteHeader(code)
 	if err := json.NewEncoder(w).Encode(data); err != nil {
 		panic(err)
+	}
+}
+
+func isValidStatus(status string) bool {
+	return status == "active" || status == "inactive"
+}
+
+func parseStatus(status string) (string, error) {
+	if status == "active" {
+		return "1", nil
+	} else if status == "inactive" {
+		return "0", nil
+	} else {
+		return "", errors.New("bad status param")
 	}
 }
