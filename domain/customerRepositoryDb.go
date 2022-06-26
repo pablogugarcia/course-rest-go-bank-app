@@ -2,11 +2,11 @@ package domain
 
 import (
 	"database/sql"
-	"log"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/pablogugarcia/banking/errs"
+	"github.com/pablogugarcia/banking/logger"
 )
 
 type CustomerRepositoryDb struct {
@@ -25,7 +25,7 @@ func (d CustomerRepositoryDb) FindAll(status string) ([]Customer, *errs.AppErr) 
 	}
 
 	if err != nil {
-		log.Println("Error while quering customers table " + err.Error())
+		logger.Error("Error while quering customers table " + err.Error())
 		return nil, errs.NewUnexpectedError("unexpected database error")
 	}
 
@@ -34,7 +34,7 @@ func (d CustomerRepositoryDb) FindAll(status string) ([]Customer, *errs.AppErr) 
 		var c Customer
 		err := rows.Scan(&c.Id, &c.Name, &c.City, &c.Zipcode, &c.DateofBirth, &c.Status)
 		if err != nil {
-			log.Println("Error while scaning customers table " + err.Error())
+			logger.Error("Error while scaning customers table " + err.Error())
 			return nil, errs.NewUnexpectedError("unexpected database error")
 		}
 		customers = append(customers, c)
@@ -53,7 +53,7 @@ func (d CustomerRepositoryDb) ById(id string) (*Customer, *errs.AppErr) {
 		if err == sql.ErrNoRows {
 			return nil, errs.NewNotFoundError("customer not found")
 		}
-		log.Println("Error while scaning customers table " + err.Error())
+		logger.Error("Error while scaning customers table " + err.Error())
 		return nil, errs.NewUnexpectedError("unexpected database error")
 	}
 
