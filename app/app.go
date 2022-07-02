@@ -3,13 +3,34 @@ package app
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	"github.com/pablogugarcia/banking/domain"
 	"github.com/pablogugarcia/banking/service"
 )
 
+func sanityCheck() {
+	envs := []string{
+		"DB_USER",
+		"DB_PASSWORD",
+		"DB_ADDR",
+		"DB_PORT",
+		"DB_NAME",
+		"SERVER_PORT",
+		"SERVER_ADDRESS"}
+	for _, env := range envs {
+		if os.Getenv(env) == "" {
+			log.Fatalf("Missing enviroment variable %s", env)
+		}
+	}
+
+}
+
 func Start() {
+	godotenv.Load()
+	sanityCheck()
 	router := mux.NewRouter()
 
 	// wiring
