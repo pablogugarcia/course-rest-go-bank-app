@@ -38,12 +38,14 @@ func Start() {
 	dbClient := getDbClient()
 
 	customerRepositoryDb := domain.NewCustomerRepositoryDb(dbClient)
+	accountRepositoryDb := domain.NewAccountRepositoryDb(dbClient)
 	// wiring
 	// ch := CustomersHandlers{service: service.NewCustomerService(domain.NewCustomerRepositoryStub())}
 	ch := CustomersHandlers{service: service.NewCustomerService(customerRepositoryDb)}
-
+	ah := AccountHandler{service: service.NewAccountService(accountRepositoryDb)}
 	router.HandleFunc("/customers", ch.getAllCoustumers).Methods(http.MethodGet)
 	router.HandleFunc("/customers/{customer_id:[0-9]+}", ch.getCustomer).Methods(http.MethodGet)
+	router.HandleFunc("/customers/{customer_id:[0-9]+}/account", ah.NewAccount).Methods(http.MethodPost)
 
 	log.Fatal(http.ListenAndServe("localhost:8000", router))
 }
