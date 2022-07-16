@@ -38,6 +38,10 @@ func (s DefaultAccountService) NewAccount(req dto.NewAccountRequest) (*dto.NewAc
 	return &response, nil
 }
 
+func (s DefaultAccountService) FindById(id string) (domain.Account, *errs.AppErr) {
+	return s.repo.FindById(id)
+}
+
 func NewAccountService(repo domain.AccountRepository) DefaultAccountService {
 	return DefaultAccountService{repo}
 }

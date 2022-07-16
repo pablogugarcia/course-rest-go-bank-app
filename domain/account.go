@@ -20,4 +20,5 @@ func (a Account) ToNewAccountResponseDto() dto.NewAccountResponse {
 
 type AccountRepository interface {
 	Save(Account) (*Account, *errs.AppErr)
+	FindById(accountId string) (Account, *errs.AppErr)
 }
